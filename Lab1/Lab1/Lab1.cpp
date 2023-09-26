@@ -12,6 +12,18 @@
 #define ID_STYLE_ITALIC 3002
 #define ID_STYLE_UNDERLINE 3003
 #define ID_BACKGROUND_COLOR 4000
+#define ID_TEXT_COLOR 4001
+#define ID_FONT_FACE_TNR 5001
+#define ID_FONT_FACE_CALIBRI 5002
+#define ID_FONT_FACE_ARIAL 5003
+#define ID_FONT_SIZE_10 6010
+#define ID_FONT_SIZE_12 6012
+#define ID_FONT_SIZE_14 6014
+#define ID_FONT_SIZE_16 6016
+#define ID_FONT_SIZE_18 6018
+#define ID_FONT_SIZE_20 6020
+
+
 
 bool g_bBold = false;
 bool g_bItalic = false;
@@ -23,7 +35,12 @@ HWND g_hEdit; // Редактор текста
 int g_nDocCount = 1; // Счетчик документов
 TCHAR g_szCurrentFile[MAX_PATH] = TEXT(""); // Текущий открытый файл
 HBRUSH hEditBgBrush = NULL;
+HBRUSH hEditTextColorBrush = NULL;
 static COLORREF bgColor = RGB(255, 255, 255); // Цвет фона по умолчанию
+static COLORREF textColor = RGB(0, 0, 0); // Цвет фона по умолчанию
+const wchar_t* g_FontFace = L"Arial";
+int g_fontSize = 16;
+
 
 // Прототипы функций
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -34,6 +51,7 @@ void UpdateWindowTitle();
 void CreateNeWindow();
 void UpdateTextStyle(HWND hWnd);
 void ChangeBgc(HWND hwnd);
+void ChangeTextColor(HWND hwnd);
 
 // Точка входа в программу
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
@@ -70,6 +88,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	HMENU hMenu = CreateMenu();
 	HMENU hFileMenu = CreateMenu();
 	HMENU hStyleMenu = CreateMenu();
+	HMENU hFontMenu = CreateMenu();
+	HMENU hFontSize = CreateMenu();
 
 	AppendMenu(hFileMenu, MF_STRING, ID_FILE_NEW, L"&New");
 	AppendMenu(hFileMenu, MF_STRING, ID_FILE_OPEN, L"&Open");
@@ -79,14 +99,27 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	AppendMenu(hStyleMenu, MF_STRING, ID_STYLE_BOLD, L"&Bold");
 	AppendMenu(hStyleMenu, MF_STRING, ID_STYLE_ITALIC, L"&Italic");
 	AppendMenu(hStyleMenu, MF_STRING, ID_STYLE_UNDERLINE, L"&Underline");
-	AppendMenu(hStyleMenu, MF_STRING, ID_BACKGROUND_COLOR, L"&Bgc");
+
+	AppendMenu(hFontMenu, MF_STRING, ID_FONT_FACE_TNR, L"&Times New Roman");
+	AppendMenu(hFontMenu, MF_STRING, ID_FONT_FACE_ARIAL, L"&Arial");
+	AppendMenu(hFontMenu, MF_STRING, ID_FONT_FACE_CALIBRI, L"&Calibri");
+
+	AppendMenu(hFontSize, MF_STRING, ID_FONT_SIZE_10, L"&10");
+	AppendMenu(hFontSize, MF_STRING, ID_FONT_SIZE_12, L"&12");
+	AppendMenu(hFontSize, MF_STRING, ID_FONT_SIZE_14, L"&14");
+	AppendMenu(hFontSize, MF_STRING, ID_FONT_SIZE_16, L"&16");
+	AppendMenu(hFontSize, MF_STRING, ID_FONT_SIZE_18, L"&18");
+	AppendMenu(hFontSize, MF_STRING, ID_FONT_SIZE_20, L"&20");
+
 
 	AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"&File");
 	AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hStyleMenu, L"&Style");
-	SetMenu(g_hMainWindow, hMenu);
+	AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFontMenu, L"&Font Face");
+	AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFontSize, L"&Font Size");
+	AppendMenu(hMenu, MF_STRING, ID_BACKGROUND_COLOR, L"&Background color");
+	AppendMenu(hMenu, MF_STRING, ID_TEXT_COLOR, L"&Text color");
 
-	// Создаем кнопку для выбора цвета фона
-	//CreateWindow(L"BUTTON", L"Выбрать цвет фона", WS_VISIBLE | WS_CHILD, 10, 220, 150, 30, g_hMainWindow, reinterpret_cast<HMENU>(ID_BACKGROUND_COLOR), hInstance, NULL);
+	SetMenu(g_hMainWindow, hMenu);
 
 	ShowWindow(g_hMainWindow, nCmdShow);
 	// Цикл обработки сообщений
@@ -113,9 +146,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		// Создаем шрифт с дефолтными параметрами
 		LOGFONT lf;
 		ZeroMemory(&lf, sizeof(LOGFONT));
-		lf.lfHeight = 16;
+		lf.lfHeight = g_fontSize;
 		lf.lfWeight = FW_NORMAL;
-		lstrcpy(lf.lfFaceName, L"Arial");
+		lstrcpy(lf.lfFaceName, g_FontFace);
 
 		hDefaultFont = CreateFontIndirect(&lf);
 		// Создание редактора текста
@@ -148,6 +181,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			ChangeBgc(hwnd);
 		}
+		if (LOWORD(wParam) == ID_TEXT_COLOR)
+		{
+			ChangeTextColor(hwnd);
+		}
+		 
 		// Обработка командных сообщений
 		int wmId = LOWORD(wParam);
 		switch (wmId)
@@ -176,13 +214,49 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			g_bUnderline = !g_bUnderline;
 			UpdateTextStyle(g_hEdit);
 			break;
+		case ID_FONT_FACE_ARIAL:
+			g_FontFace = L"Arial";
+			UpdateTextStyle(g_hEdit);
+			break;
+		case ID_FONT_FACE_CALIBRI:
+			g_FontFace = L"Calibri";
+			UpdateTextStyle(g_hEdit);
+			break;
+		case ID_FONT_FACE_TNR:
+			g_FontFace = L"Times New Roman";
+			UpdateTextStyle(g_hEdit);
+			break;
+		case ID_FONT_SIZE_10:
+			g_fontSize = 10;
+			UpdateTextStyle(g_hEdit);
+			break;
+		case ID_FONT_SIZE_12:
+			g_fontSize = 12;
+			UpdateTextStyle(g_hEdit);
+			break;
+		case ID_FONT_SIZE_14:
+			g_fontSize = 14;
+			UpdateTextStyle(g_hEdit);
+			break;
+		case ID_FONT_SIZE_16:
+			g_fontSize = 16;
+			UpdateTextStyle(g_hEdit);
+			break;
+		case ID_FONT_SIZE_18:
+			g_fontSize = 18;
+			UpdateTextStyle(g_hEdit);
+			break;
+		case ID_FONT_SIZE_20:
+			g_fontSize = 20;
+			UpdateTextStyle(g_hEdit);
+			break;
 		}
-
 		break;
 	}
 	case WM_CTLCOLOREDIT:
 	{
 		HDC hdcEdit = (HDC)wParam;
+		SetTextColor(hdcEdit, textColor);
 		SetBkColor(hdcEdit, bgColor);
 		return reinterpret_cast<LRESULT>(hEditBgBrush);	
 	}
@@ -345,18 +419,15 @@ void UpdateTextStyle(HWND hWnd)
 {
 	LOGFONT lf;
 	ZeroMemory(&lf, sizeof(LOGFONT));
-	lf.lfHeight = 16; // высота шрифта
+	lf.lfHeight = g_fontSize; // высота шрифта
 	if (g_bBold){lf.lfWeight = FW_BOLD;}
 	if (g_bItalic) {
 		lf.lfItalic = TRUE; // курсив
 	}
-	else {
-		lf.lfItalic = FALSE; // курсив
-	}
 	if (g_bUnderline) {
 		lf.lfUnderline = TRUE; // подчеркивание
 	}
-	lstrcpy(lf.lfFaceName, L"Arial"); // имя шрифта
+	lstrcpy(lf.lfFaceName, g_FontFace); // имя шрифта
 
 	HFONT hFont = CreateFontIndirect(&lf);
 	SendMessage(hWnd, WM_SETFONT, reinterpret_cast<WPARAM>(hFont), MAKELPARAM(TRUE, 0));
@@ -381,6 +452,25 @@ void ChangeBgc(HWND hwnd) {
 	{
 		bgColor = cc.rgbResult;
 		hEditBgBrush = CreateSolidBrush(cc.rgbResult);
+		InvalidateRect(hwnd, NULL, TRUE);
+	}
+}
+
+void ChangeTextColor(HWND hwnd) {
+	// Открываем диалоговое окно цвета
+	CHOOSECOLOR cc;
+	ZeroMemory(&cc, sizeof(CHOOSECOLOR));
+	static COLORREF customColors[16] = { 0 };
+	cc.lStructSize = sizeof(CHOOSECOLOR);
+	cc.hwndOwner = hwnd;
+	cc.rgbResult = textColor;
+	cc.lpCustColors = customColors;
+	cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+
+	if (ChooseColor(&cc))
+	{
+		textColor = cc.rgbResult;
+		hEditTextColorBrush = CreateSolidBrush(cc.rgbResult);
 		InvalidateRect(hwnd, NULL, TRUE);
 	}
 }
