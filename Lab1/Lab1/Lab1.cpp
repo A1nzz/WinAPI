@@ -5,6 +5,7 @@
 #define ID_FILE_NEW 2001
 #define ID_FILE_OPEN 2002
 #define ID_FILE_SAVE 2003
+#define ID_NEW_WINDOW 2004
 
 // Глобальные переменные
 HWND g_hMainWindow; // Основное окно приложения
@@ -18,6 +19,7 @@ void CreateNewDocument();
 void OpenDocument();
 void SaveDocument();
 void UpdateWindowTitle();
+void CreateNeWindow();
 
 // Точка входа в программу
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
@@ -57,6 +59,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
     AppendMenu(hFileMenu, MF_STRING, ID_FILE_NEW, L"&New");
     AppendMenu(hFileMenu, MF_STRING, ID_FILE_OPEN, L"&Open");
     AppendMenu(hFileMenu, MF_STRING, ID_FILE_SAVE, L"&Save");
+    AppendMenu(hFileMenu, MF_STRING, ID_NEW_WINDOW, L"&New WIndow");
 
     AppendMenu(hMenu, MF_POPUP, (UINT_PTR)hFileMenu, L"&File");
     SetMenu(g_hMainWindow, hMenu);
@@ -118,18 +121,24 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case ID_FILE_SAVE:
             SaveDocument();
             break;
+
+        case ID_NEW_WINDOW:
+            CreateNeWindow();
+            break;
         }
         break;
     }
     case WM_CLOSE:
     {
-        // Обработка сообщения закрытия окна
-        if (MessageBox(hwnd, L"Do you want to save changes?", L"Text Editor", MB_YESNO | MB_ICONQUESTION) == IDYES)
-        {
-            SaveDocument();
-        }
-        DestroyWindow(hwnd);
-        break;
+        
+            // Если пользователь соглашается сохранить изменения, закройте текущее окно
+            if (MessageBox(hwnd, L"Do you want to save the changes?", L"Save Changes", MB_YESNO | MB_ICONQUESTION) == IDYES)
+            {
+                SaveDocument();
+            }
+            DestroyWindow(hwnd);
+        
+        return 0;
     }
     case WM_DESTROY:
     {
@@ -142,12 +151,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-// Создание нового документа
 void CreateNewDocument()
 {
     g_nDocCount++;
     g_szCurrentFile[0] = TEXT('\0');
     SetWindowText(g_hMainWindow, L"Text Editor - New Document");
+
     SetWindowText(g_hEdit, L"");
 }
 
@@ -164,32 +173,38 @@ void OpenDocument()
     ofn.nMaxFile = MAX_PATH;
     ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
 
+   
+
     if (GetOpenFileName(&ofn))
     {
-        g_nDocCount++;
-        lstrcpy(g_szCurrentFile, szFileName);
-        SetWindowText(g_hMainWindow, g_szCurrentFile);
+        
+        
+            // Открытие файла в текущем окне
+            g_nDocCount++;
+            lstrcpy(g_szCurrentFile, szFileName);
+            SetWindowText(g_hMainWindow, g_szCurrentFile);
 
-        HANDLE hFile = CreateFile(g_szCurrentFile, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (hFile != INVALID_HANDLE_VALUE)
-        {
-            DWORD dwFileSize = GetFileSize(hFile, NULL);
-            if (dwFileSize != INVALID_FILE_SIZE)
+            HANDLE hFile = CreateFile(g_szCurrentFile, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+            if (hFile != INVALID_HANDLE_VALUE)
             {
-                LPSTR lpFileData = (LPSTR)GlobalAlloc(GPTR, dwFileSize + 1);
-                if (lpFileData != NULL)
+                DWORD dwFileSize = GetFileSize(hFile, NULL);
+                if (dwFileSize != INVALID_FILE_SIZE)
                 {
-                    DWORD dwBytesRead;
-                    if (ReadFile(hFile, lpFileData, dwFileSize, &dwBytesRead, NULL))
+                    LPSTR lpFileData = (LPSTR)GlobalAlloc(GPTR, dwFileSize + 1);
+                    if (lpFileData != NULL)
                     {
-                        lpFileData[dwBytesRead] = '\0';
-                        SetWindowTextA(g_hEdit, lpFileData);
+                        DWORD dwBytesRead;
+                        if (ReadFile(hFile, lpFileData, dwFileSize, &dwBytesRead, NULL))
+                        {
+                            lpFileData[dwBytesRead] = '\0';
+                            SetWindowTextA(g_hEdit, lpFileData);
+                        }
+                        GlobalFree(lpFileData);
                     }
-                    GlobalFree(lpFileData);
                 }
+                CloseHandle(hFile);
             }
-            CloseHandle(hFile);
-        }
+        
     }
 }
 
@@ -251,4 +266,16 @@ void UpdateWindowTitle()
         wsprintf(szTitle, TEXT("Text Editor - %s"), g_szCurrentFile);
     }
     SetWindowText(g_hMainWindow, szTitle);
+}
+
+void CreateNeWindow() {
+    STARTUPINFO si = {};
+    PROCESS_INFORMATION pi = {};
+
+    // Создание нового процесса с текущим исполняемым файлом
+    if (CreateProcess(NULL, GetCommandLine(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+    {
+        CloseHandle(pi.hThread);
+        CloseHandle(pi.hProcess);
+    }
 }
