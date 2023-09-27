@@ -53,9 +53,21 @@ void UpdateTextStyle(HWND hWnd);
 void ChangeBgc(HWND hwnd);
 void ChangeTextColor(HWND hwnd);
 
+// Прототип функции-перехватчика
+LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
+
+// Глобальная переменная для хранения хука
+HHOOK g_hHook = NULL;
+
 // Точка входа в программу
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow)
 {
+	g_hHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardProc, NULL, 0);
+	if (g_hHook == NULL)
+	{
+		// Обработка ошибки
+		return 1;
+	}
 	// Регистрация класса окна
 	const wchar_t CLASS_NAME[] = L"TextEditorClass";
 
@@ -129,6 +141,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
+	// Удаление хука
+	UnhookWindowsHookEx(g_hHook);
 
 	return 0;
 }
@@ -473,4 +488,34 @@ void ChangeTextColor(HWND hwnd) {
 		hEditTextColorBrush = CreateSolidBrush(cc.rgbResult);
 		InvalidateRect(hwnd, NULL, TRUE);
 	}
+}
+
+// Функция-перехватчик клавиатуры
+LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	if (nCode >= 0)
+	{
+		// Извлечение информации о событии клавиатуры
+		KBDLLHOOKSTRUCT* pKeyboardStruct = (KBDLLHOOKSTRUCT*)lParam;
+
+		// Проверка типа события
+		if (wParam == WM_KEYDOWN)
+		{
+			// Проверка нажатия комбинации клавиш Ctrl+N
+			if ((pKeyboardStruct->vkCode == 'N') && (GetAsyncKeyState(VK_CONTROL) & 0x8000))
+			{
+				// Выполнение действия по созданию нового файла
+				CreateNewDocument();
+			}
+			else if ((pKeyboardStruct->vkCode == 'O') && (GetAsyncKeyState(VK_CONTROL) & 0x8000)) {
+				OpenDocument();
+			}
+			else if ((pKeyboardStruct->vkCode == 'S') && (GetAsyncKeyState(VK_CONTROL) & 0x8000)) {
+				SaveDocument();
+			}
+		}
+	}
+
+	// Передача события дальше в цепочку хуков
+	return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
