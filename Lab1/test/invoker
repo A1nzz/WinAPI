@@ -1,0 +1,197 @@
+"guidedata"
+{
+	"Hero"		"invoker"
+	"Title"		"Scytherium's Guide for Invoker"
+	"Role"		"#DOTA_HeroGuide_Role_Core"
+	"GameplayVersion"		"7.34d"
+	"Overview"		"Updated 25.12.2021.
+"
+	"GuideRevision"		"68"
+	"AssociatedWorkshopItemID"		"0x00000000245F6AF4"
+	"OriginalCreatorID"		"0x0000000003DDF5FA"
+	"GuideFormatVersion"		"2"
+	"TimeUpdated"		"0x000000006522D8A4"
+	"TimePublished"		"0x000000006522D8A4"
+	"ItemBuild"
+	{
+		"Items"
+		{
+			"start"
+			{
+				"item"		"item_gauntlets"
+				"item"		"item_circlet"
+				"item"		"item_branches"
+				"item"		"item_faerie_fire"
+				"item"		"item_tango"
+				"item"		"item_ward_observer"
+				"item"		"item_ward_sentry"
+				"item"		"item_infused_raindrop"
+			}
+			"lane + EARLY GAME (null or wraith)"
+			{
+				"item"		"item_bracer"
+				"item"		"item_boots"
+				"item"		"item_magic_wand"
+				"item"		"item_hand_of_midas"
+			}
+			"mid game (magic)"
+			{
+				"item"		"item_arcane_boots"
+			}
+			"Choose one (magic)"
+			{
+				"item"		"item_ultimate_scepter"
+				"item"		"item_cyclone"
+				"item"		"item_octarine_core"
+			}
+			"Choose another (magic)"
+			{
+				"item"		"item_sheepstick"
+				"item"		"item_shivas_guard"
+				"item"		"item_kaya_and_sange"
+				"item"		"item_refresher"
+				"item"		"item_wind_waker"
+			}
+			"MID GAME (PHYSICAL)"
+			{
+				"item"		"item_power_treads"
+				"item"		"item_witch_blade"
+			}
+			"choose one (physical)"
+			{
+				"item"		"item_orchid"
+				"item"		"item_maelstrom"
+				"item"		"item_hurricane_pike"
+			}
+			"choose another (physical)"
+			{
+				"item"		"item_sheepstick"
+				"item"		"item_bloodthorn"
+				"item"		"item_gungir"
+				"item"		"item_skadi"
+				"item"		"item_nullifier"
+				"item"		"item_revenants_brooch"
+				"item"		"item_monkey_king_bar"
+				"item"		"item_satanic"
+			}
+			"defense / positioning"
+			{
+				"item"		"item_black_king_bar"
+				"item"		"item_sphere"
+				"item"		"item_aeon_disk"
+				"item"		"item_force_staff"
+				"item"		"item_blink"
+				"item"		"item_arcane_blink"
+				"item"		"item_wind_waker"
+			}
+			"consumables / utilities"
+			{
+				"item"		"item_ultimate_scepter_2"
+				"item"		"item_moon_shard"
+				"item"		"item_travel_boots"
+				"item"		"item_travel_boots_2"
+				"item"		"item_aghanims_shard"
+			}
+		}
+		"ItemTooltips"
+		{
+			"item_tpscroll"		"Always, ALWAYS carry a scroll in your backpack. This item wins games!"
+			"item_null_talisman"		"Minor stats that are pretty helpful during the laning phase. Remains useful after min 25 due to its stats increase (since 7.31). Less often to be sold in order to free the inventory&amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;apos;s space"
+			"item_boots"		"Can be bought before Gloves of Haste if additional movement speed is vital during the laning phase (active crowd ganks from enemy team, chase of low/weak opponent like Lina, Sniper etc.)"
+			"item_magic_wand"		"3 all stats and HP/MP replenish is very useful during early stage of a game"
+			"item_hand_of_midas"		"Major item that helps Invoker to stay on the line with first positions and enemy 2 position. Gloves of haste give you that pleasant attack speed for the laning phase. Must have in 95% of games"
+			"item_ultimate_scepter"		"Additional level to all the spheres, stats and Cataclysm are huge boosts for 17-19 game minutes"
+			"item_travel_boots"		"Movement speed and free teleport that makes you very mobile. Can be bought as first item instead mana boots if you really see the oppotunities to push/farm lanes."
+			"item_ancient_janggo"		"Good team-fight and push item, boosts your forged spirits really well"
+			"item_octarine_core"		"Can be bought instead of Aghanim&apos;s or Eul&apos;s if you have good start and your opponents don&apos;t (e.g. they are not pushing you with initiator heroes with blink daggers like Axe, Legion etc.)"
+			"item_refresher"		"Symphony of Skills :)"
+			"item_shivas_guard"		"200 damage and slow that amplifies your crowd control and AOE damage. Also helps survive a few more physical attacks, which is pretty significant in the late stage of a game"
+			"item_yasha_and_kaya"		"Gives a little bit of everything :)
+16% of spell damage amplification rocks with  Invoker potential AOE spell
+ damage"
+			"item_veil_of_discord"		"Can be taken in certain games to tear down enemies with huge magic damage. Either you have lots of magic damage in team (Kotl, Willow w/e) or you have very good farm and early Aghanim Scepter."
+			"item_bloodthorn"		"Silence, damage, attack speed is everything physical Invoker needs. Starts from Orchid for Invisibility -  Cold Snap + EMP/Alacrity combo.
+Since 7.32 insanely good providing int and even more attack speed"
+			"item_gungir"		"Maelstrom can be upgraded either into Mjolnir or Gleipnir depends whether you need to fix your target or not"
+			"item_witch_blade"		"Can be taken after Drums/Aghanim Scepter to enhance your attack potential"
+			"item_hurricane_pike"		"If you feel lack of mobility e.g. fighting vs Lifestealer, Sniper, Clockwerk you may take this starting from Force Staff"
+			"item_nullifier"		"Additional damage and purge that can help pretty much in fights"
+			"item_skadi"		"Skadi to boost your sustainability, single target control and decrease its healing potential"
+			"item_mjollnir"		"Maelstrom can be upgraded either into Mjolnir or Gleipnir depends whether you need to fix your target or not."
+			"item_ultimate_scepter_2"		"In late game you can afford yourself sacrificing addiitonal stats from Aghanim&amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;apos;s (yes, they go away if you buy this) for one addional item."
+			"item_aghanims_shard"		"Even rotating Ice Wall shard seemed more useful than this one. Either buy it when playing Wex buind (after 2 major items at least) or in late game when you have Wex maxed."
+			"item_moon_shard"		"Simply additional attack speed and increased night field of view"
+			"item_cyclone"		"Can be taken if you need some control in a mid-game (after a laning phase). Works great vs initiators and channeling spells"
+			"item_black_king_bar"		"Feeling yourself too vulnerable for spells that can interrupt your magic combos or physical approach? This will help"
+			"item_sphere"		"Less prioritized but still useful in some cases, like being put down via Duel, Culling Blade, Rupture etc."
+			"item_aeon_disk"		"Prevents you from being demolished within 2-3 seconds by entire enemy team if get caught. Useful in situations when enemy has blink + hex hero, Legion Commander, Axe and other heroes can unexpectedly reach you in one moment"
+			"item_blink"		"Additional mobility, can be taken if you feel yourself out of position in fights. For example, you are late to follow your Enigma/Void/Tide initiation or unexpected blink + hex combo onto enemy core hero"
+			"item_travel_boots_2"		"Just a pleasant upgrade for your Boots of Travel with its additional 15 movement speed and hero teleport ability"
+			"item_sheepstick"		"If you dont know what to buy - buy this.  2,8 secs of almost non-purgeable control wins games. In magic build its cooldown will be that low that you can use it 3-5 times during one fight. In physical build it allows you to eliminate any enemy support without any opposition from their side"
+			"item_bloodstone"		"Enhances spell damage, provides lifesteal and hp/mp that are vital for magic-builded Invoker.
+An active ability is insane when you get caught and need some extra hp ro survive and flee/counter initiate a fight."
+			"item_wraith_band"		"Another good option as a start item because of the armor and, more important, attack speed, which is relatively high for the very beginning of the game. Does help to LH and harass"
+			"item_infused_raindrop"		"Bring if suffering from magic spells spam during the lane phase"
+			"item_arcane_boots"		"Allows you to use spells for farm and harass more often. Many players prefer Power Treads, but we are aiming to get our magic cast items faster. And Arcane Boots allow us to buy Octarine Core faster"
+			"item_aether_lens"		"
+"
+			"item_power_treads"		"Power Treads provides you with that nasty attack speed and additional damage"
+			"item_kaya_and_sange"		"Gives a little bit of everything
+16% of spell damage amplification rocks with  Invoker potential AOE spell damage, while 20% status resistance helps against disables"
+			"item_wind_waker"		"Surprisingly good item in the late stage of a game. Helps you to flee from traps like Cogs, Treants ult and other chaining spells/items which can potentially cause your death and game over. Take if you feel being targeted with these spells/items"
+			"item_revenants_brooch"		"Good vs heroes with ghost scepter, ethereal blade and abilities alike. Partially good vs Muetra during her ult"
+			"item_monkey_king_bar"		"Underrated item when it comes to DPS increase. However, Invoker physical build requires this only to prevent hits from missing"
+			"item_arcane_blink"		"An exstension of your Blink Dagger that lowers the cooldown. With Octarine Core and neutral items that reduce cooldowns, the blink has 4,5 secs cooldown"
+			"item_orchid"		"An important addition to physical build, preventing enemies from fleeng"
+			"item_maelstrom"		"Considering high attack speed Invoker gets from Alacrity, this item gives a significant boost to damage and faming potential. Also good due to being a part of Gleipnir"
+			"item_satanic"		"Eventually you may find yourself a strong damage dealer that cant stand against enemy focus in late game. This helps greatly"
+			"item_force_staff"		"If you feel lack of mobility e.g. fighting vs Lifestealer, Sniper, Clockwerk you may take Force Staff into Hurricane Pike later"
+			"item_greater_crit"		"I personally do not think this is a good item for Invoker physical since you have your crits from Bloothorn of you have an item to control enemy / defend yourself"
+			"item_bracer"		"Since Invoker is a universal attribute hero now, every similar item now gives the same amount of damage, but bracer also provides additional 60/120 HP, which often becomes crucial within first 15 minutes of the game"
+		}
+	}
+	"AbilityBuild"
+	{
+		"AbilityOrder"
+		{
+			"1"		"invoker_exort"
+			"2"		"invoker_quas"
+			"3"		"invoker_exort"
+			"4"		"invoker_quas"
+			"5"		"invoker_exort"
+			"6"		"invoker_quas"
+			"7"		"invoker_exort"
+			"8"		"invoker_quas"
+			"9"		"invoker_wex"
+			"10"		"invoker_exort"
+			"11"		"invoker_exort"
+			"12"		"invoker_wex"
+			"13"		"invoker_exort"
+			"14"		"invoker_quas"
+			"15"		"invoker_wex"
+			"16"		"invoker_wex"
+			"17"		"invoker_wex"
+			"18"		"special_bonus_unique_invoker_3"
+			"19"		"special_bonus_unique_invoker_9"
+			"20"		"special_bonus_unique_invoker_additional_chaos_meteors"
+			"21"		"invoker_wex"
+			"22"		"invoker_wex"
+			"23"		"invoker_quas"
+			"24"		"invoker_quas"
+			"25"		"special_bonus_unique_invoker_2"
+		}
+		"AbilityTooltips"
+		{
+			"special_bonus_unique_invoker_6"		"If you are sure you don&amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;apos;t need -24 secs of invis cooldown"
+			"special_bonus_unique_invoker_10"		"If you feel you need to use invis often (flee from enemy, gank them etc.) - take this"
+			"special_bonus_unique_invoker_9"		"Magic build"
+			"special_bonus_unique_invoker_11"		"Physical build"
+			"special_bonus_unique_invoker_5"		"Physical build"
+			"special_bonus_unique_invoker_3"		"This talent objectively gives more value than additional Ice Wall damage, allowing you to use Tornado oftenly"
+			"special_bonus_unique_invoker_2"		"Should be prioritized due to its AOE value with mass disarm and movement disruption"
+			"special_bonus_unique_invoker_13"		"Second priority (lvl 30)"
+			"special_bonus_unique_invoker_ice_wall_dps"		"Tornado talent gives more value than this one"
+			"special_bonus_unique_invoker_additional_chaos_meteors"		"Magic build"
+		}
+	}
+}

@@ -1,5 +1,4 @@
 ﻿#include <windows.h>
-#include <string>
 
 
 // Идентификаторы элементов управления
@@ -23,6 +22,9 @@
 #define ID_FONT_SIZE_18 6018
 #define ID_FONT_SIZE_20 6020
 
+#define ID_BIN_SAVE 7001
+#define ID_BIN_UPLOAD 7002
+
 
 
 bool g_bBold = false;
@@ -40,6 +42,10 @@ static COLORREF bgColor = RGB(255, 255, 255); // Цвет фона по умол
 static COLORREF textColor = RGB(0, 0, 0); // Цвет фона по умолчанию
 const wchar_t* g_FontFace = L"Arial";
 int g_fontSize = 16;
+HANDLE g_hFileMapping;
+LPVOID g_lpFileBase;
+DWORD fileSize = 0;
+
 
 
 // Прототипы функций
@@ -52,6 +58,8 @@ void CreateNeWindow();
 void UpdateTextStyle(HWND hWnd);
 void ChangeBgc(HWND hwnd);
 void ChangeTextColor(HWND hwnd);
+void WriteToFile();
+void ReadFromFile();
 
 // Прототип функции-перехватчика
 LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
@@ -107,6 +115,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLi
 	AppendMenu(hFileMenu, MF_STRING, ID_FILE_OPEN, L"&Open");
 	AppendMenu(hFileMenu, MF_STRING, ID_FILE_SAVE, L"&Save");
 	AppendMenu(hFileMenu, MF_STRING, ID_NEW_WINDOW, L"&New WIndow");
+	AppendMenu(hFileMenu, MF_STRING, ID_BIN_SAVE, L"&Bin Save");
+	AppendMenu(hFileMenu, MF_STRING, ID_BIN_UPLOAD, L"&Bin Open");
 
 	AppendMenu(hStyleMenu, MF_STRING, ID_STYLE_BOLD, L"&Bold");
 	AppendMenu(hStyleMenu, MF_STRING, ID_STYLE_ITALIC, L"&Italic");
@@ -179,6 +189,21 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			NULL
 		);
 		SendMessage(g_hEdit, WM_SETFONT, reinterpret_cast<WPARAM>(hDefaultFont), MAKELPARAM(TRUE, 0));
+		// Создание файла и отображение его в память
+		g_hFileMapping = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, 1024, L"MyMappedFile");
+		if (!g_hFileMapping)
+		{
+			MessageBox(g_hMainWindow, L"Failed to create file mapping", L"Error", MB_OK | MB_ICONERROR);
+			return -1;
+		}
+		g_lpFileBase = MapViewOfFile(g_hFileMapping, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+		if (!g_lpFileBase)
+		{
+			MessageBox(g_hMainWindow, L"Failed to map view of file", L"Error", MB_OK | MB_ICONERROR);
+			CloseHandle(g_hFileMapping);
+			return -1;
+		}
+
 		break;
 	}
 	case WM_SIZE:
@@ -265,6 +290,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			g_fontSize = 20;
 			UpdateTextStyle(g_hEdit);
 			break;
+		case ID_BIN_SAVE:
+			WriteToFile();
+			break;
+
+		case ID_BIN_UPLOAD:
+			ReadFromFile();
+			break;
 		}
 		break;
 	}
@@ -292,6 +324,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_DESTROY:
 	{
+		if (g_lpFileBase != NULL)
+		{
+			UnmapViewOfFile(g_lpFileBase);
+			g_lpFileBase = NULL;
+		}
+
+		if (g_hFileMapping != NULL)
+		{
+			CloseHandle(g_hFileMapping);
+			g_hFileMapping = NULL;
+		}
 		// Обработка сообщения разрушения окна
 		PostQuitMessage(0);
 		break;
@@ -306,7 +349,6 @@ void CreateNewDocument()
 	g_nDocCount++;
 	g_szCurrentFile[0] = TEXT('\0');
 	SetWindowText(g_hMainWindow, L"Text Editor - New Document");
-
 	SetWindowText(g_hEdit, L"");
 }
 
@@ -518,4 +560,123 @@ LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 	// Передача события дальше в цепочку хуков
 	return CallNextHookEx(NULL, nCode, wParam, lParam);
+}
+
+// Функция для записи данных в файл
+void WriteToFile()
+{
+	if (g_szCurrentFile[0] == TEXT('\0'))
+	{
+		// Если текущий файл пуст, вызываем диалог сохранения файла
+		OPENFILENAME ofn = {};
+		TCHAR szFileName[MAX_PATH] = TEXT("");
+
+		ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.hwndOwner = g_hMainWindow;
+		ofn.lpstrFilter = TEXT("Text Files (*.bin)\0*.bin\0All Files (*.*)\0*.*\0");
+		ofn.lpstrFile = szFileName;
+		ofn.nMaxFile = MAX_PATH;
+		ofn.Flags = OFN_OVERWRITEPROMPT;
+
+		if (GetSaveFileName(&ofn))
+		{
+			lstrcpy(g_szCurrentFile, szFileName);
+			SetWindowText(g_hMainWindow, g_szCurrentFile);
+		}
+		else
+		{
+			return;
+		}
+	}
+
+	HANDLE hFile = CreateFile(g_szCurrentFile, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		int nLength = GetWindowTextLength(g_hEdit);
+		LPSTR lpFileData = (LPSTR)GlobalAlloc(GPTR, nLength + 1);
+		if (lpFileData != NULL)
+		{
+			GetWindowTextA(g_hEdit, lpFileData, nLength + 1);
+
+			DWORD dwBytesWritten;
+			WriteFile(hFile, lpFileData, nLength, &dwBytesWritten, NULL);
+
+			GlobalFree(lpFileData);
+		}
+		CloseHandle(hFile);
+	}
+}
+
+// Функция для чтения данных из файла
+void ReadFromFile()
+{
+	OPENFILENAME ofn;
+	TCHAR szFileName[MAX_PATH] = TEXT("");
+
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = g_hMainWindow;
+	ofn.lpstrFilter = L"Binary Files (*.bin)\0*.bin\0All Files (*.*)\0*.*\0";
+	ofn.lpstrFile = szFileName;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+
+
+	if (GetOpenFileName(&ofn))
+	{
+		g_nDocCount++;
+		lstrcpy(g_szCurrentFile, szFileName);
+		SetWindowText(g_hMainWindow, g_szCurrentFile);
+		HANDLE hFile = CreateFile(ofn.lpstrFile, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		if (hFile != INVALID_HANDLE_VALUE)
+		{
+			DWORD fileSize = GetFileSize(hFile, NULL);
+
+			// Обновление размера представления файла в памяти
+			UnmapViewOfFile(g_lpFileBase);
+			CloseHandle(g_hFileMapping);
+
+			g_hFileMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, fileSize, L"SharedFileMapping");
+
+			if (g_hFileMapping)
+			{	
+				LPSTR pFileDataA = (LPSTR)MapViewOfFile(g_hFileMapping, FILE_MAP_READ, 0, 0, fileSize);
+				//g_lpFileBase = (LPSTR)MapViewOfFile(g_hFileMapping, FILE_MAP_READ, 0, 0, fileSize);
+				if (g_lpFileBase)
+				{
+
+
+					int wideLength = MultiByteToWideChar(CP_UTF8, 0, pFileDataA, -1, NULL, 0);
+					//UnmapViewOfFile(g_lpFileBase);
+					g_lpFileBase = new WCHAR[wideLength];
+					MultiByteToWideChar(CP_UTF8, 0, pFileDataA, -1, (LPWSTR)g_lpFileBase, wideLength);
+					WCHAR* pszText = (WCHAR*)g_lpFileBase;
+					SetWindowText(g_hEdit, pszText);
+
+					// Перерисовка окна
+					InvalidateRect(g_hMainWindow, NULL, TRUE);
+				}
+				else
+				{
+					MessageBox(g_hMainWindow, L"Failed to map view of file", L"Error", MB_OK | MB_ICONERROR);
+					UnmapViewOfFile(g_lpFileBase);
+
+					CloseHandle(g_hFileMapping);
+				}
+			}
+			else
+			{
+				MessageBox(g_hMainWindow, L"Failed to create file mapping", L"Error", MB_OK | MB_ICONERROR);
+				UnmapViewOfFile(g_lpFileBase);
+				CloseHandle(g_hFileMapping);
+			}
+
+			CloseHandle(hFile);
+		}
+		else
+		{
+			MessageBox(g_hMainWindow, L"Failed to open file", L"Error", MB_OK | MB_ICONERROR);
+		}
+	}
+	
 }
