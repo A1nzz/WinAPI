@@ -69,7 +69,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		// Создание элемента управления ListView
 		hListView = CreateWindowEx(WS_EX_CLIENTEDGE, WC_LISTVIEW, L"", WS_CHILD | WS_VISIBLE | LVS_REPORT,
-			320, 0, 280, 400, hWnd, reinterpret_cast<HMENU>(IDC_LISTVIEW), nullptr, nullptr);
+			320, 0, 300, 400, hWnd, reinterpret_cast<HMENU>(IDC_LISTVIEW), nullptr, nullptr);
 
 		// Добавление колонок в ListView
 		LVCOLUMN lvColumn{};
@@ -79,7 +79,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		ListView_InsertColumn(hListView, 0, &lvColumn);
 
 		lvColumn.pszText = const_cast <LPWSTR>(L"Value");
-		lvColumn.cx = 200;
+		lvColumn.cx = 150;
 		ListView_InsertColumn(hListView, 1, &lvColumn);
 
 		g_hEdit = CreateWindowEx(WS_EX_CLIENTEDGE, WC_EDIT, nullptr, WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL, 620, 10, 150, 23, hWnd, nullptr, nullptr, nullptr);
