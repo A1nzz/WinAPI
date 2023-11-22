@@ -61,8 +61,14 @@ void UpdateCarPositions(int carIndex)
         WaitForSingleObject(g_hMutex, INFINITE); // Ждем доступа к общему ресурсу
 
         g_carPositions[carIndex] += rand() % 5 + 1; // Генерация случайного шага
-        if (g_carPositions[carIndex] >= TRACK_WIDTH) // Если автомобиль достиг конца трека, вернуть его в начало
+        if (g_carPositions[carIndex] >= TRACK_WIDTH) {
+            // Если автомобиль достиг конца трека, вернуть его в начало
             g_carPositions[carIndex] = 0;
+            wchar_t str[20];
+            _itow_s(carIndex, str, 10);
+            MessageBox(g_hWnd, str, L"Finished", MB_OK | MB_ICONINFORMATION);
+        }
+               
 
         ReleaseMutex(g_hMutex); // Освобождаем доступ к общему ресурсу
 
